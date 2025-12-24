@@ -1,0 +1,22 @@
+.container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--background);
+}
+
+.mainWrapper {
+    flex: 1;
+    margin-left: 260px;
+    /* Matched to New Sidebar width */
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 260px);
+}
+
+.main {
+    flex: 1;
+    padding: 2rem;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1400px;
+}

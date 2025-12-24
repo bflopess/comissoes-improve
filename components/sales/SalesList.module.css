@@ -1,0 +1,77 @@
+.container {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--secondary);
+    font-weight: 500;
+}
+
+.table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--foreground);
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.active {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}
+
+.completed {
+    background-color: rgba(37, 99, 235, 0.1);
+    color: var(--primary);
+}
+
+.cancelled {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+}
+
+.actionLink {
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.actionLink:hover {
+    text-decoration: underline;
+}

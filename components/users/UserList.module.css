@@ -1,0 +1,164 @@
+.container {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 0;
+    /* Remove padding to let table sit flush or style header */
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    /* For rounded corners on table */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--slate-50);
+}
+
+.header h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--slate-900);
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.table th {
+    text-align: left;
+    padding: 1rem 1.5rem;
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    color: var(--slate-500);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--slate-100);
+    color: var(--slate-700);
+    vertical-align: middle;
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.table tr:hover td {
+    background-color: var(--slate-50);
+}
+
+.userInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    color: var(--slate-900);
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.role {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.admin {
+    background-color: var(--primary-100);
+    color: var(--primary-700);
+}
+
+.manager {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+}
+
+.salesperson {
+    background-color: var(--slate-100);
+    color: var(--slate-700);
+}
+
+.active {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--success-text);
+    background-color: var(--success-bg);
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.inactive {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--slate-500);
+    background-color: var(--slate-100);
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.inactiveRow {
+    opacity: 0.6;
+    background-color: var(--slate-50);
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.editButton {
+    color: var(--primary);
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+}
+
+.editButton:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+.deleteButton {
+    color: var(--error-text) !important;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+}
+
+.deleteButton:hover {
+    color: #b91c1c !important;
+    /* darker red */
+    text-decoration: underline;
+}

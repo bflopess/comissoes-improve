@@ -1,0 +1,81 @@
+.container {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    height: 100%;
+    box-shadow: var(--shadow-sm);
+}
+
+.heading {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--slate-900);
+    letter-spacing: -0.025em;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--slate-100);
+    transition: background-color 0.2s;
+}
+
+.item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.customer {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--slate-900);
+}
+
+.product {
+    font-size: 0.75rem;
+    color: var(--slate-500);
+}
+
+.meta {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.amount {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--slate-900);
+}
+
+.date {
+    font-size: 0.75rem;
+    color: var(--slate-500);
+}
+
+.empty {
+    color: var(--slate-500);
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 2rem;
+    background-color: var(--slate-50);
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--slate-300);
+}

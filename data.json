@@ -1,0 +1,115 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Administrador",
+      "email": "admin@improve.com",
+      "role": "admin",
+      "active": true,
+      "avatarUrl": "https://i.pravatar.cc/150?u=admin"
+    },
+    {
+      "id": "2",
+      "name": "Gerente Comercial",
+      "email": "gerente@improve.com",
+      "role": "manager",
+      "active": true,
+      "avatarUrl": "https://i.pravatar.cc/150?u=manager"
+    },
+    {
+      "id": "3",
+      "name": "João Silva",
+      "email": "joao@improve.com",
+      "role": "salesperson",
+      "active": true,
+      "avatarUrl": "https://i.pravatar.cc/150?u=joao"
+    },
+    {
+      "id": "4",
+      "name": "Maria Souza",
+      "email": "maria@improve.com",
+      "role": "salesperson",
+      "active": true,
+      "avatarUrl": "https://i.pravatar.cc/150?u=maria"
+    },
+    {
+      "id": "e2be7d8a-3044-4d39-82e3-6cad1152ec7d",
+      "name": "Bruno Lopes",
+      "email": "bflopess@gmail.com",
+      "role": "salesperson",
+      "active": true,
+      "createdAt": "2025-12-22T19:49:30.006Z",
+      "updatedAt": "2025-12-22T19:49:30.007Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "1",
+      "name": "Curso de Inglês - Semestral",
+      "description": "Curso completo de inglês (6 meses)",
+      "baseCommissionRate": 10,
+      "commissionType": "percentage_on_sale",
+      "active": true
+    },
+    {
+      "id": "2",
+      "name": "Material Didático",
+      "description": "Kit de livros e acesso online",
+      "baseCommissionRate": 15,
+      "commissionType": "percentage_on_profit",
+      "baseCost": 150,
+      "active": true
+    },
+    {
+      "id": "3",
+      "name": "Preparatório TOEFL",
+      "description": "Curso intensivo para certificação",
+      "baseCommissionRate": 12,
+      "commissionType": "percentage_on_sale",
+      "active": true
+    },
+    {
+      "id": "3578df4f-642e-4322-bb23-10a39fdad380",
+      "name": "Curso Ferris Wheel 3A",
+      "description": "",
+      "baseCommissionRate": 4,
+      "commissionType": "percentage_on_sale",
+      "active": true,
+      "createdAt": "2025-12-22T17:18:29.204Z",
+      "updatedAt": "2025-12-22T17:18:29.204Z"
+    }
+  ],
+  "sales": [
+    {
+      "id": "d20de4e2-c7e1-4735-8652-5c2530147020",
+      "clientName": "Bruno Lopes",
+      "clientType": "adult",
+      "responsibleName": "Bruno Lopes",
+      "studentName": "",
+      "amount": 50,
+      "date": "2025-12-22",
+      "campaign": "Black Friday",
+      "salespersonId": "3",
+      "productId": "3578df4f-642e-4322-bb23-10a39fdad380",
+      "installmentStartDate": "2025-12-22",
+      "dueDay": 22,
+      "installments": [
+        {
+          "id": "fcf91c8b-505e-4e35-b652-e21a36ee7399",
+          "saleId": "d20de4e2-c7e1-4735-8652-5c2530147020",
+          "installmentNumber": 1,
+          "totalInstallments": 1,
+          "dueDate": "2025-12-22T00:00:00.000Z",
+          "amount": 50,
+          "commissionAmount": 2,
+          "status": "Pending",
+          "clientPaid": true,
+          "sellerPaid": false
+        }
+      ],
+      "status": "Completed",
+      "createdAt": "2025-12-22T17:19:39.460Z",
+      "updatedAt": "2025-12-22T17:19:39.460Z"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String   // In a real app, this should be hashed
+  role      String   // 'admin', 'manager', 'salesperson'
+  avatarUrl String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sales     Sale[]
+}
+
+model Product {
+  id                 String   @id @default(uuid())
+  name               String
+  description        String?
+  baseCommissionRate Float
+  commissionType     String   // 'percentage_on_sale' | 'percentage_on_profit'
+  baseCost           Float?
+  active             Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  sales              Sale[]
+}
+
+model Sale {
+  id               String        @id @default(uuid())
+  clientName       String?       // Legacy or simple client name
+  clientType       String        @default("adult") // 'adult' | 'student'
+  responsibleName  String
+  studentName      String?
+  amount           Float
+  date             DateTime
+  status           String        @default("Completed") // 'Pending' | 'Completed' | 'Cancelled'
+  campaign         String?
+  
+  salespersonId    String
+  salesperson      User          @relation(fields: [salespersonId], references: [id])
+  
+  productId        String
+  product          Product       @relation(fields: [productId], references: [id])
+  
+  installmentStartDate DateTime?
+  dueDay           Int?
+  
+  installments     Installment[]
+  
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model Installment {
+  id                String   @id @default(uuid())
+  installmentNumber Int
+  totalInstallments Int
+  dueDate           DateTime
+  amount            Float
+  commissionAmount  Float
+  status            String   @default("Pending") // Legacy status, can be derived
+  clientPaid        Boolean  @default(false)
+  sellerPaid        Boolean  @default(false)
+  paidDate          DateTime?
+  
+  saleId            String
+  sale              Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
