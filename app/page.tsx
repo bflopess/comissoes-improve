@@ -30,7 +30,10 @@ export default function Dashboard() {
     const paidCommission = sales.flatMap(s => s.installments).filter(inst => inst.sellerPaid).reduce((acc, inst) => acc + inst.commissionAmount, 0);
     const pendingCommission = totalCommission - paidCommission;
 
-    return { totalSales, totalCommission, paidCommission, pendingCommission };
+    // Count Overdue
+    const overdueCount = sales.flatMap(s => s.installments).filter(inst => inst.status === 'Overdue').length;
+
+    return { totalSales, totalCommission, paidCommission, pendingCommission, overdueCount };
   }, [sales]);
 
   if (loading) return <div>Carregando dashboard...</div>;
@@ -38,6 +41,26 @@ export default function Dashboard() {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Painel Geral</h1>
+
+      {summary.overdueCount > 0 && (
+        <a href="/app/commissions" style={{ textDecoration: 'none' }}>
+          <div className={styles.alertCard} style={{
+            backgroundColor: '#fee2e2',
+            border: '1px solid #ef4444',
+            borderRadius: '8px',
+            padding: '1rem',
+            marginBottom: '1.5rem',
+            color: '#b91c1c',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+            <strong>{summary.overdueCount} comissões em atraso.</strong> Clique para ver detalhes.
+          </div>
+        </a>
+      )}
 
       <div className={styles.statsGrid}>
         <StatsCard

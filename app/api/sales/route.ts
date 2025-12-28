@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export async function GET() {
     try {
+        await db.checkOverdueInstallments();
         const sales = await db.getSales();
         return NextResponse.json(sales);
     } catch (error) {
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
                 dueDate: dueDate.toISOString(),
                 amount,
                 commissionAmount,
-                status: 'Pending',
+                status: 'Pending' as const,
                 clientPaid: false,
                 sellerPaid: false,
             };

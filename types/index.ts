@@ -22,7 +22,7 @@ export interface Product {
   active: boolean;
 }
 
-export type InstallmentStatus = 'Pending' | 'Paid' | 'Overdue';
+export type InstallmentStatus = 'Pending' | 'Paid' | 'Overdue' | 'Renegotiated';
 
 export interface Installment {
   id: string;
@@ -32,6 +32,8 @@ export interface Installment {
   dueDate: string; // ISO Date string
   amount: number;
   commissionAmount: number;
+  status?: InstallmentStatus; // Optional for compatibility, but basically required now
+  originalInstallmentId?: string;
 
   // Double Status
   clientPaid: boolean;

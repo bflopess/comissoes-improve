@@ -1,4 +1,5 @@
 import { supabase, createClientServer } from './supabase';
+import { v4 as uuidv4 } from 'uuid';
 import { User, Product, Sale, Installment } from '@/types';
 
 // Helper to map snake_case to camelCase
@@ -33,6 +34,8 @@ const mapInstallment = (i: any): Installment => ({
     clientPaid: i.client_paid,
     sellerPaid: i.seller_paid,
     paidDate: i.paid_date,
+    status: i.status || 'Pending',
+    originalInstallmentId: i.original_installment_id,
 });
 
 const mapSale = (s: any, installments: any[] = [], user?: any, product?: any): Sale => ({
@@ -271,7 +274,9 @@ class Database {
             commission_amount: i.commissionAmount,
             client_paid: i.clientPaid,
             seller_paid: i.sellerPaid,
-            paid_date: i.paidDate
+            paid_date: i.paidDate,
+            status: i.status,
+            original_installment_id: i.originalInstallmentId,
         }));
 
         const { error: instError } = await supabase.from('installments').insert(installmentsData);
@@ -311,6 +316,8 @@ class Database {
         if (updates.clientPaid !== undefined) dbUpdates.client_paid = updates.clientPaid;
         if (updates.sellerPaid !== undefined) dbUpdates.seller_paid = updates.sellerPaid;
         if (updates.paidDate) dbUpdates.paid_date = updates.paidDate;
+        if (updates.status) dbUpdates.status = updates.status;
+        if (updates.originalInstallmentId) dbUpdates.original_installment_id = updates.originalInstallmentId;
 
         const { data, error } = await supabase.from('installments').update(dbUpdates).eq('id', installmentId).select().single();
         if (error) throw error;
@@ -333,11 +340,70 @@ class Database {
             commission_amount: i.commissionAmount,
             client_paid: i.clientPaid,
             seller_paid: i.sellerPaid,
-            paid_date: i.paidDate
+            paid_date: i.paidDate,
+            status: i.status || 'Pending',
+            original_installment_id: i.originalInstallmentId,
         }));
 
         const { error } = await supabase.from('installments').insert(installmentsData);
         if (error) throw error;
+    }
+
+    async checkOverdueInstallments() {
+        // Find Pending installments that are past due
+        const today = new Date().toISOString().split('T')[0];
+
+        // We can't do complex update-where logics easily with Supabase client in one go without stored procedures
+        // or a two-step process. 
+        // A simple query: UPDATE installments SET status = 'Overdue' WHERE status = 'Pending' AND due_date < today
+        // But Supabase JS client .update() requires filters.
+
+        const { error } = await supabase
+            .from('installments')
+            .update({ status: 'Overdue' })
+            .eq('status', 'Pending')
+            .lt('due_date', today);
+
+        if (error) console.error("Error updating overdue installments:", error);
+    }
+
+    async renegotiateInstallment(oldInstallmentId: string, newDate: string) {
+        // 1. Mark old as Renegotiated
+        const { error: updateError } = await supabase
+            .from('installments')
+            .update({ status: 'Renegotiated' })
+            .eq('id', oldInstallmentId);
+
+        if (updateError) throw updateError;
+
+        // 2. Fetch old installment to copy data
+        const old = await this.getInstallment(oldInstallmentId);
+        if (!old) throw new Error("Installment not found");
+
+        const newId = uuidv4();
+
+        // 3. Create new installment
+        const newInstallment: Installment = {
+            ...old,
+            id: newId,
+            dueDate: newDate,
+            status: 'Pending',
+            clientPaid: false,
+            sellerPaid: false,
+            paidDate: undefined,
+            originalInstallmentId: oldInstallmentId,
+        };
+
+        await this.createInstallments([newInstallment]);
+
+        return newInstallment;
+    }
+
+    // Helper to get single installment directly (not exposing full sale usually, but needed here)
+    async getInstallment(id: string) {
+        const { data, error } = await supabase.from('installments').select('*').eq('id', id).single();
+        if (error || !data) return null;
+        return mapInstallment(data);
     }
 }
 

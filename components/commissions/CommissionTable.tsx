@@ -25,12 +25,41 @@ export default function CommissionTable({ sales, filterDate, filters, selectedId
         sale.installments.map(inst => ({ ...inst, sale }))
     ).filter(item => {
         const d = new Date(item.dueDate);
-        const matchDate = d.getMonth() === month && d.getFullYear() === year;
+        const matchMonth = d.getMonth() === month && d.getFullYear() === year;
+        const isOverdue = item.status === 'Overdue';
+
+        // Smart View: Show current month OR Overdue items
+        const matchDate = matchMonth || isOverdue;
+
         const matchSalesperson = filters.salespersonId ? item.sale.salespersonId === filters.salespersonId : true;
         const matchProduct = filters.productId ? item.sale.productId === filters.productId : true;
         const matchCampaign = filters.campaign ? item.sale.campaign === filters.campaign : true;
         return matchDate && matchSalesperson && matchProduct && matchCampaign;
     });
+
+    // Sort by due date (oldest first for overdue visibility)
+    filteredInstallments.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+
+    const handleRenegotiate = async (id: string) => {
+        const newDate = prompt("Digite a nova data de vencimento (AAAA-MM-DD):");
+        if (!newDate) return;
+
+        try {
+            const res = await fetch('/api/installments/renegotiate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, newDate }),
+            });
+
+            if (!res.ok) throw new Error("Failed");
+
+            alert("Renegociação realizada com sucesso!");
+            if (onStatusChange) onStatusChange();
+        } catch (error) {
+            console.error('Error renegotiating', error);
+            alert('Erro ao renegociar parecela');
+        }
+    };
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
@@ -93,8 +122,13 @@ export default function CommissionTable({ sales, filterDate, filters, selectedId
                 <tbody>
                     {filteredInstallments.map((item) => {
                         const clientName = item.sale.clientType === 'adult' ? item.sale.responsibleName : `${item.sale.studentName} (${item.sale.responsibleName})`;
+
+                        const isOverdue = item.status === 'Overdue';
+                        const isRenegotiated = item.status === 'Renegotiated';
+                        const rowClass = isOverdue ? 'overdue' : isRenegotiated ? 'renegotiated' : '';
+
                         return (
-                            <tr key={item.id} className={selectedIds.includes(item.id) ? styles.selected : ''}>
+                            <tr key={item.id} className={`${selectedIds.includes(item.id) ? styles.selected : ''} ${rowClass}`}>
                                 <td>
                                     <input
                                         type="checkbox"
@@ -128,13 +162,30 @@ export default function CommissionTable({ sales, filterDate, filters, selectedId
                                     </div>
                                 </td>
                                 <td>
-                                    {/* Individual actions if needed */}
+                                    <div className={styles.actions}>
+                                        {item.status === 'Overdue' && (
+                                            <button
+                                                className={`${styles.btnAction} ${styles.btnRenegotiate}`}
+                                                onClick={() => handleRenegotiate(item.id)}
+                                            >
+                                                Renegociar
+                                            </button>
+                                        )}
+                                        {item.status === 'Renegotiated' && (
+                                            <span className={styles.renegotiatedBadge}>Renegociada</span>
+                                        )}
+                                    </div>
                                 </td>
                             </tr>
                         );
                     })}
                 </tbody>
             </table>
+
+            <style jsx>{`
+                .overdue { background-color: #fee2e2; }
+                .renegotiated { background-color: #f3f4f6; color: #9ca3af; }
+            `}</style>
         </div>
     );
 }
