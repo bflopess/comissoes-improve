@@ -4,41 +4,25 @@ import { Sale, Installment } from '@/types';
 import styles from './CommissionTable.module.css';
 import { useState } from 'react';
 
+interface ExtendedInstallment extends Installment {
+    sale: Sale;
+}
+
 interface CommissionTableProps {
-    sales: Sale[];
-    filterDate: Date;
-    filters: {
-        salespersonId: string;
-        productId: string;
-        campaign: string;
-    };
+    installments: ExtendedInstallment[];
     selectedIds: string[];
     onSelectionChange: (ids: string[]) => void;
     onStatusChange?: () => void; // Callback to refresh data
 }
 
-export default function CommissionTable({ sales, filterDate, filters, selectedIds, onSelectionChange, onStatusChange }: CommissionTableProps) {
-    const month = filterDate.getMonth();
-    const year = filterDate.getFullYear();
+export default function CommissionTable({ installments, selectedIds, onSelectionChange, onStatusChange }: CommissionTableProps) {
 
-    const filteredInstallments = sales.flatMap(sale =>
-        sale.installments.map(inst => ({ ...inst, sale }))
-    ).filter(item => {
-        const d = new Date(item.dueDate);
-        const matchMonth = d.getMonth() === month && d.getFullYear() === year;
-        const isOverdue = item.status === 'Overdue';
+    // Internal filtering removed. We trust the parent to pass filtered data.
+    const filteredInstallments = installments; // Alias for compatibility with existing render logic below
 
-        // Smart View: Show current month OR Overdue items
-        const matchDate = matchMonth || isOverdue;
+    // Sort by due date (oldest first for overdue visibility) - Optional, but good to keep if parent doesn't sort
+    // filteredInstallments.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()); // Parent should do this
 
-        const matchSalesperson = filters.salespersonId ? item.sale.salespersonId === filters.salespersonId : true;
-        const matchProduct = filters.productId ? item.sale.productId === filters.productId : true;
-        const matchCampaign = filters.campaign ? item.sale.campaign === filters.campaign : true;
-        return matchDate && matchSalesperson && matchProduct && matchCampaign;
-    });
-
-    // Sort by due date (oldest first for overdue visibility)
-    filteredInstallments.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
 
     const handleRenegotiate = async (id: string) => {
         const newDate = prompt("Digite a nova data de vencimento (AAAA-MM-DD):");
@@ -109,7 +93,9 @@ export default function CommissionTable({ sales, filterDate, filters, selectedId
                             />
                         </th>
                         <th>Vencimento</th>
-                        <th>Cliente</th>
+                        <th>Pagamento</th>
+                        <th>Resp. Fin.</th>
+                        <th>Aluno</th>
                         <th>Vendedor</th>
                         <th>Produto</th>
                         <th>Parc.</th>
@@ -121,11 +107,14 @@ export default function CommissionTable({ sales, filterDate, filters, selectedId
                 </thead>
                 <tbody>
                     {filteredInstallments.map((item) => {
-                        const clientName = item.sale.clientType === 'adult' ? item.sale.responsibleName : `${item.sale.studentName} (${item.sale.responsibleName})`;
-
-                        const isOverdue = item.status === 'Overdue';
+                        // Logic Update: Paid items are NEVER Overdue visually
+                        const isOverdue = item.status === 'Overdue' && !item.clientPaid;
                         const isRenegotiated = item.status === 'Renegotiated';
                         const rowClass = isOverdue ? 'overdue' : isRenegotiated ? 'renegotiated' : '';
+
+                        const paymentMethodMap: Record<string, string> = {
+                            'credit': 'Crédito', 'debit': 'Débito', 'pix': 'Pix', 'boleto': 'Boleto', 'cash': 'Dinheiro', 'check': 'Cheque'
+                        };
 
                         return (
                             <tr key={item.id} className={`${selectedIds.includes(item.id) ? styles.selected : ''} ${rowClass}`}>
@@ -137,7 +126,9 @@ export default function CommissionTable({ sales, filterDate, filters, selectedId
                                     />
                                 </td>
                                 <td>{new Date(item.dueDate).toLocaleDateString('pt-BR')}</td>
-                                <td>{clientName}</td>
+                                <td>{paymentMethodMap[item.sale.paymentMethod || ''] || item.sale.paymentMethod || '-'}</td>
+                                <td>{item.sale.responsibleName}</td>
+                                <td>{item.sale.studentName || '-'}</td>
                                 <td>{item.sale.salesperson?.name || 'N/A'}</td>
                                 <td>{item.sale.product?.name || 'N/A'}</td>
                                 <td>{item.installmentNumber}/{item.totalInstallments}</td>
@@ -163,7 +154,7 @@ export default function CommissionTable({ sales, filterDate, filters, selectedId
                                 </td>
                                 <td>
                                     <div className={styles.actions}>
-                                        {item.status === 'Overdue' && (
+                                        {item.status === 'Overdue' && !item.clientPaid && (
                                             <button
                                                 className={`${styles.btnAction} ${styles.btnRenegotiate}`}
                                                 onClick={() => handleRenegotiate(item.id)}

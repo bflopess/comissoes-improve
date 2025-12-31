@@ -350,21 +350,43 @@ class Database {
     }
 
     async checkOverdueInstallments() {
-        // Find Pending installments that are past due
         const today = new Date().toISOString().split('T')[0];
 
-        // We can't do complex update-where logics easily with Supabase client in one go without stored procedures
-        // or a two-step process. 
-        // A simple query: UPDATE installments SET status = 'Overdue' WHERE status = 'Pending' AND due_date < today
-        // But Supabase JS client .update() requires filters.
-
-        const { error } = await supabase
+        // 1. Mark Pending as Overdue if past due AND NOT PAID
+        const { error: overdueError } = await supabase
             .from('installments')
             .update({ status: 'Overdue' })
             .eq('status', 'Pending')
+            .eq('client_paid', false) // Only if NOT paid
             .lt('due_date', today);
 
-        if (error) console.error("Error updating overdue installments:", error);
+        if (overdueError) console.error("Error updating overdue installments:", overdueError);
+
+        // 2. Fix Inconsistent Statuses: If it IS paid or renegotiated, it should NOT be Overdue.
+        // This acts as a self-healing mechanism for existing data.
+        // We set it back to 'Pending' (or we could have a 'Paid' status, but the requirement says "Customer Paid = Never Late", 
+        // usually meaning status reflects workflow. If the system relies on 'Pending' + bool flags, we revert to Pending. 
+        // Or if there is a 'Paid' status enum, we use that? The types show: status: 'Pending' | 'Overdue' | 'Renegotiated' | 'Completed'?
+        // The type definition mapInstallment defaults to 'Pending'. 
+        // Let's assume if paid, it shouldn't be 'Overdue'. Let's revert to 'Pending' so it just looks normal, 
+        // OR better yet, if the system doesn't have a 'Paid' status string, 'Pending' with client_paid=true is the "Paid" state.
+
+        const { error: fixError } = await supabase
+            .from('installments')
+            .update({ status: 'Pending' })
+            .eq('status', 'Overdue')
+            .or('client_paid.eq.true,status.eq.Renegotiated'); // If paid OR renegotiated, remove Overdue status
+
+        // Note: The above .or syntax might need careful checking with Supabase JS. 
+        // Simpler to do two calls if needed, but let's try strict "client_paid = true AND status = 'Overdue'"
+
+        const { error: fixPaidError } = await supabase
+            .from('installments')
+            .update({ status: 'Pending' })
+            .eq('status', 'Overdue')
+            .eq('client_paid', true);
+
+        if (fixPaidError) console.error("Error fixing paid overdue installments:", fixPaidError);
     }
 
     async renegotiateInstallment(oldInstallmentId: string, newDate: string) {

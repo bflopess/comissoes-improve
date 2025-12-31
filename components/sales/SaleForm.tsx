@@ -256,7 +256,7 @@ export default function SaleForm({ initialData }: SaleFormProps) {
                                 className={styles.select}
                             // Disabled removed to allow editing
                             >
-                                {[1, 2, 3, 4, 5, 6, 10, 12].map(num => (
+                                {Array.from({ length: 12 }, (_, i) => i + 1).map(num => (
                                     <option key={num} value={num}>{num}x</option>
                                 ))}
                             </select>

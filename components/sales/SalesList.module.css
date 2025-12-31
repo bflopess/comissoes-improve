@@ -12,9 +12,21 @@
     margin-bottom: 1.5rem;
 }
 
-.header h2 {
+.headerTitle {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.headerTitle h2 {
     font-size: 1.25rem;
     font-weight: 600;
+    margin: 0;
+}
+
+.exportActions {
+    display: flex;
+    gap: 0.5rem;
 }
 
 .tableWrapper {
